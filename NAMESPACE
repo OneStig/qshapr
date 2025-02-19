@@ -1,3 +1,4 @@
 useDynLib(qshapr)
 importFrom(Rcpp, evalCpp)
-export("Rcpp.fake.fun")
+
+export(r_inv_binom_coef)
