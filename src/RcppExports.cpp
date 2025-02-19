@@ -22,9 +22,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// r_complex_v_invc_degree
+Eigen::MatrixXcd r_complex_v_invc_degree(int d);
+RcppExport SEXP _qshapr_r_complex_v_invc_degree(SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_complex_v_invc_degree(d));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_qshapr_r_inv_binom_coef", (DL_FUNC) &_qshapr_r_inv_binom_coef, 1},
+    {"_qshapr_r_complex_v_invc_degree", (DL_FUNC) &_qshapr_r_complex_v_invc_degree, 1},
     {NULL, NULL, 0}
 };
 

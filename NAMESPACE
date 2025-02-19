@@ -2,3 +2,4 @@ useDynLib(qshapr)
 importFrom(Rcpp, evalCpp)
 
 export(r_inv_binom_coef)
+export(r_complex_v_invc_degree)

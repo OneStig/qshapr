@@ -7,4 +7,3 @@
 #CXX_STD = CXX11
 
 PKG_CPPFLAGS = -I../src
-PKG_CXXFLAGS = -Wno-unused-but-set-variable

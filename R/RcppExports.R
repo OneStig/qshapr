@@ -5,3 +5,7 @@ r_inv_binom_coef <- function(d) {
     .Call('_qshapr_r_inv_binom_coef', PACKAGE = 'qshapr', d)
 }
 
+r_complex_v_invc_degree <- function(d) {
+    .Call('_qshapr_r_complex_v_invc_degree', PACKAGE = 'qshapr', d)
+}
+

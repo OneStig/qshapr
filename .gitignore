@@ -1,5 +1,10 @@
 .DS_Store
 
+# Compiled files
+src/*.o
+src/*.so
+src/*.dll
+
 # History files
 .Rhistory
 .Rapp.history
@@ -22,6 +27,7 @@
 
 # RStudio files
 .Rproj.user/
+.Rproj.user
 
 # produced vignettes
 vignettes/*.html
