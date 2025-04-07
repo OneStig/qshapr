@@ -1,5 +1,9 @@
 useDynLib(qshapr)
 importFrom(Rcpp, evalCpp)
 
-export(r_inv_binom_coef)
-export(r_complex_v_invc_degree)
+export(r_store_complex_v_invc)
+export(r_store_complex_root)
+export(r_complex_dot_v2)
+export(create_tree_explainer)
+export(get_summary)
+export(rsq)

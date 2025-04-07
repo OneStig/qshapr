@@ -11,32 +11,85 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// r_inv_binom_coef
-Eigen::VectorXd r_inv_binom_coef(int d);
-RcppExport SEXP _qshapr_r_inv_binom_coef(SEXP dSEXP) {
+// r_store_complex_v_invc
+Eigen::MatrixXcd r_store_complex_v_invc(int d);
+RcppExport SEXP _qshapr_r_store_complex_v_invc(SEXP dSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type d(dSEXP);
-    rcpp_result_gen = Rcpp::wrap(r_inv_binom_coef(d));
+    rcpp_result_gen = Rcpp::wrap(r_store_complex_v_invc(d));
     return rcpp_result_gen;
 END_RCPP
 }
-// r_complex_v_invc_degree
-Eigen::MatrixXcd r_complex_v_invc_degree(int d);
-RcppExport SEXP _qshapr_r_complex_v_invc_degree(SEXP dSEXP) {
+// r_store_complex_root
+Eigen::MatrixXcd r_store_complex_root(int d);
+RcppExport SEXP _qshapr_r_store_complex_root(SEXP dSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type d(dSEXP);
-    rcpp_result_gen = Rcpp::wrap(r_complex_v_invc_degree(d));
+    rcpp_result_gen = Rcpp::wrap(r_store_complex_root(d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// r_complex_dot_v2
+double r_complex_dot_v2(const Eigen::VectorXcd& p, const Eigen::VectorXcd& v_invc, int d);
+RcppExport SEXP _qshapr_r_complex_dot_v2(SEXP pSEXP, SEXP v_invcSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::VectorXcd& >::type p(pSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXcd& >::type v_invc(v_invcSEXP);
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_complex_dot_v2(p, v_invc, d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_tree_explainer_cpp
+SEXP create_tree_explainer_cpp(const Rcpp::List& tree_model);
+RcppExport SEXP _qshapr_create_tree_explainer_cpp(SEXP tree_modelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type tree_model(tree_modelSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_tree_explainer_cpp(tree_model));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_tree_summary
+Rcpp::List get_tree_summary(SEXP explainer_ptr);
+RcppExport SEXP _qshapr_get_tree_summary(SEXP explainer_ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type explainer_ptr(explainer_ptrSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_tree_summary(explainer_ptr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rsq
+Eigen::VectorXd rsq(SEXP explainer_ptr, const Eigen::MatrixXd& x, const Eigen::VectorXd& y, const Eigen::MatrixXd& T0_x);
+RcppExport SEXP _qshapr_rsq(SEXP explainer_ptrSEXP, SEXP xSEXP, SEXP ySEXP, SEXP T0_xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type explainer_ptr(explainer_ptrSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type T0_x(T0_xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rsq(explainer_ptr, x, y, T0_x));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_qshapr_r_inv_binom_coef", (DL_FUNC) &_qshapr_r_inv_binom_coef, 1},
-    {"_qshapr_r_complex_v_invc_degree", (DL_FUNC) &_qshapr_r_complex_v_invc_degree, 1},
+    {"_qshapr_r_store_complex_v_invc", (DL_FUNC) &_qshapr_r_store_complex_v_invc, 1},
+    {"_qshapr_r_store_complex_root", (DL_FUNC) &_qshapr_r_store_complex_root, 1},
+    {"_qshapr_r_complex_dot_v2", (DL_FUNC) &_qshapr_r_complex_dot_v2, 3},
+    {"_qshapr_create_tree_explainer_cpp", (DL_FUNC) &_qshapr_create_tree_explainer_cpp, 1},
+    {"_qshapr_get_tree_summary", (DL_FUNC) &_qshapr_get_tree_summary, 1},
+    {"_qshapr_rsq", (DL_FUNC) &_qshapr_rsq, 4},
     {NULL, NULL, 0}
 };
 
