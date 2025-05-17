@@ -1,23 +1,37 @@
-#' Create a Tree Explainer from an rpart model
+#' @importFrom xgboost xgb.parameters
+NULL
+
+#' Create a QSHAPR Tree Explainer
 #' 
-#' This function takes an rpart decision tree model and creates a TreeExplainer
-#' object that can be used for explanation.
+#' Add this later
 #' 
-#' @param tree_model An rpart model object
+#' @param tree_model A tree model object
 #' @return A TreeExplainer object
 #' @export
 create_tree_explainer <- function(tree_model) {
-  if (!inherits(tree_model, "rpart")) {
-    stop("tree_model must be an rpart object")
+  if (inherits(tree_model, "xgb.Booster")) {
+    # Setting defauult depth to 6 to match Python package
+    # max_depth_xgb <- xgb.parameters(tree_model)$max_depth
+
+    # if (is.null(max_depth_xgb)) {
+    #   max_depth_xgb <- 6
+    # }
+
+    # TODO: Add support for optinoal base score
+    base_score <- 0.5
+    # base_score <- xgb.parameters(tree_model)$base_score
+
+    xgb_trees <- xgb_formatter(tree_model, max_depth_xgb)
+
+    explainer <- create_xgboost_explainer()
+
+    class(explainer) <- c("qshapr_tree_explainer", class(explainer))
+    return(explainer)
+  }
+  else {
+    stop("tree_model must be a supported model object")
   }
   
-  # Create the TreeExplainer
-  explainer <- create_tree_explainer_cpp(tree_model)
-  
-  # Add class for method dispatch
-  class(explainer) <- c("qshapr_tree_explainer", class(explainer))
-  
-  return(explainer)
 }
 
 #' Get a summary of the tree structure

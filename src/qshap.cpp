@@ -72,11 +72,11 @@ void T2_sample(
 }
 
 Eigen::MatrixXd T2(
-    const Eigen::MatrixXd& x, 
-    const TreeSummary& summary_tree,
-    const Eigen::MatrixXcd& store_v_invc, 
-    const Eigen::MatrixXcd& store_z,
-    bool parallel
+        const Eigen::MatrixXd& x, 
+        const TreeSummary& summary_tree,
+        const Eigen::MatrixXcd& store_v_invc, 
+        const Eigen::MatrixXcd& store_z,
+        bool parallel
 ) {
     // Extract init_prediction from summary_tree and filter non-zero values
     std::vector<double> init_prediction_vec;
@@ -116,16 +116,32 @@ Eigen::MatrixXd loss_treeshap(
         const Eigen::MatrixXd& T0_x,  // Pre-computed SHAP values
         double learning_rate
 ) {
-    // Calculate T2 values and apply learning rate
-    Eigen::MatrixXd square_treeshap_x = T2(x, summary_tree, store_v_invc, store_z) * 
-        std::pow(learning_rate, 2);
+    // The formula for the loss is:
+    // loss_ij = shap_ij^2 - 2 * y_i * shap_ij
+    // Where:
+    // - shap_ij is the SHAP value for feature j and instance i
+    // - y_i is the target value for instance i
     
-    // Apply learning rate to pre-computed SHAP values
-    Eigen::MatrixXd T0_x_scaled = T0_x * learning_rate;
+    int n_samples = x.rows();
+    int n_features = T0_x.cols();
     
-    // Calculate the final result: square_treeshap_x - 2 * (y * T0_x.T).T
-    // In Eigen, we need to handle the matrix multiplication carefully
-    Eigen::MatrixXd res = square_treeshap_x - 2.0 * (y.asDiagonal() * T0_x_scaled);
+    // Initialize result matrix
+    Eigen::MatrixXd loss = Eigen::MatrixXd::Zero(n_samples, n_features);
     
-    return res;
+    // First term: SHAP values squared
+    // We use the pre-computed SHAP values directly, as they are passed as T0_x
+    // If we needed to use T2 instead, we'd compute:
+    // Eigen::MatrixXd square_treeshap_x = T2(x, summary_tree, store_v_invc, store_z);
+    
+    // For each instance and feature, calculate loss
+    for (int i = 0; i < n_samples; i++) {
+        for (int j = 0; j < n_features; j++) {
+            double shap_value = T0_x(i, j);
+            
+            // Calculate loss: shap_ij^2 - 2 * y_i * shap_ij
+            loss(i, j) = shap_value * shap_value - 2 * y(i) * shap_value;
+        }
+    }
+    
+    return loss;
 }

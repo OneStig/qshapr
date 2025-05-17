@@ -54,6 +54,57 @@ shap_vals <- fastshap::explain(
     nsim = 1000
 )
 
-rsq_res <- qshapr::rsq(explainer, X, y, shap_vals)
+# Add a manual verification that shap values sum to predictions minus baseline
+baseline <- mean(ypred)
+shap_sums <- rowSums(shap_vals)
+pred_diffs <- ypred - baseline
 
+# Calculate correlation between sum of shap values and model prediction differences
+shap_pred_cor <- cor(shap_sums, pred_diffs)
+print(paste("Correlation between sum of SHAP values and predictions:", shap_pred_cor))
+
+# Calculate average absolute difference between shap sums and prediction differences
+shap_pred_diff <- mean(abs(shap_sums - pred_diffs))
+print(paste("Mean absolute difference between SHAP sums and prediction differences:", shap_pred_diff))
+
+rsq_res <- qshapr::rsq(explainer, X, y, shap_vals)
 print(paste("QSHAP R^2 result: ", sum(rsq_res)))
+
+# Manual R^2 decomposition verification
+# In theory, we should be able to compute feature-wise R^2 values
+manual_rsq_values <- numeric(ncol(X))
+for (j in 1:ncol(X)) {
+  # For each feature, compute the reduction in SSE if we add this feature's SHAP values
+  feature_contribution <- shap_vals[, j]
+  # Multiply by feature contribution and sum
+  manual_rsq_values[j] <- sum(2 * y * feature_contribution - feature_contribution^2) / sst
+}
+
+print(paste("Manual feature-wise R^2 sum:", sum(manual_rsq_values)))
+print("Feature R^2 contributions:")
+for (j in 1:ncol(X)) {
+  print(paste(colnames(X)[j], ":", manual_rsq_values[j]))
+}
+
+# Theoretical verification using the loss formula from loss_treeshap
+# The loss formula in loss_treeshap is: square_treeshap_x - 2 * (y * T0_x.T).T
+# where square_treeshap_x corresponds to T2 values in the paper
+
+# Compute each component of the loss manually
+# Term 1: square_treeshap_x (approximated here using shap_vals^2)
+square_terms <- shap_vals^2
+
+# Term 2: 2 * (y * T0_x.T).T (which is 2 * y_i * shap_ij for each feature j and sample i)
+cross_terms <- 2 * outer(y, rep(1, ncol(shap_vals))) * shap_vals
+
+# Compute loss as: square_terms - cross_terms
+manual_loss <- square_terms - cross_terms
+
+# Sum the losses by column and divide by SST to get R^2 contributions
+manual_rsq_from_loss <- -colSums(manual_loss) / sst
+
+print(paste("Manual R^2 from loss formula:", sum(manual_rsq_from_loss)))
+print("Feature R^2 contributions from loss formula:")
+for (j in 1:ncol(X)) {
+  print(paste(colnames(X)[j], ":", manual_rsq_from_loss[j]))
+}

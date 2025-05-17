@@ -144,6 +144,14 @@ TreeExplainer::TreeExplainer(const Rcpp::List& tree_model) {
     store_z = store_complex_root(max_depth * 2);
 }
 
+void TreeExplainer::initialize_xgboost(const int max_depth, const long double base_score, const std::vector<SimpleTree> xgb_trees) {
+    this->model_type = TreeType::XGBOOST;
+
+    this->max_depth = max_depth;
+    this->base_score = base_score;
+    this->xgb_trees = xgb_trees;
+}
+
 Eigen::MatrixXd TreeExplainer::get_loss(
     const Eigen::MatrixXd& x,
     const Eigen::VectorXd& y,
@@ -211,38 +219,14 @@ Eigen::VectorXd TreeExplainer::get_rsq(
         y_sampled = y.head(nsample);
     }
     
-    // Handle number of cores
-    // TODO: Implement parallel processing in the future
-    // For now, we'll just use the single-threaded approach
-    
-    // Calculate mean of y
     double y_mean_ori = y_sampled.mean();
     
-    // Calculate sum of squared total (SST)
+    
     double sst = (y_sampled.array() - y_mean_ori).square().sum();
     
-    // Calculate loss
     Eigen::MatrixXd loss_matrix = get_loss(x_sampled, y_sampled, T0_x, y_mean_ori);
     
-    // Calculate R-squared
     Eigen::VectorXd rsq_values = -loss_matrix.colwise().sum() / sst;
     
-    // TODO: fix this later to match python package
-    // if (loss_out) {
-    //     result.rsq = rsq_values;
-    //     result.loss = loss_matrix;
-    //     return result;
-    // } else {
-    //     return rsq_values;
-    // }
-
     return rsq_values;
-    
-    /* 
-     * TODO: Implement parallel processing in the future
-     * This would involve:
-     * 1. Dividing x and y into chunks
-     * 2. Processing each chunk in parallel
-     * 3. Combining the results
-     */
 }

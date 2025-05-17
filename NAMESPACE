@@ -1,9 +1,7 @@
 useDynLib(qshapr)
 importFrom(Rcpp, evalCpp)
 
-export(r_store_complex_v_invc)
-export(r_store_complex_root)
-export(r_complex_dot_v2)
 export(create_tree_explainer)
+export(create_xgboost_explainer)
 export(get_summary)
 export(rsq)

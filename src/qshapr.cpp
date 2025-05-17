@@ -4,24 +4,41 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
-// [[Rcpp::export]]
-Eigen::MatrixXcd r_store_complex_v_invc(int d) {
-    return store_complex_v_invc(d);
-}
-
-// [[Rcpp::export]]
-Eigen::MatrixXcd r_store_complex_root(int d) {
-    return store_complex_root(d);
-}
-
-// [[Rcpp::export]]
-double r_complex_dot_v2(const Eigen::VectorXcd& p, const Eigen::VectorXcd& v_invc, int d) {
-    return complex_dot_v2(p, v_invc, d);
-}
 
 // [[Rcpp::export]]
 SEXP create_tree_explainer_cpp(const Rcpp::List& tree_model) {
     Rcpp::XPtr<TreeExplainer> ptr(new TreeExplainer(tree_model), true);
+    return ptr;
+}
+
+
+// [[Rcpp::export]]
+SEXP create_xgboost_explainer(int max_depth, long double base_score, const Rcpp::List& xgb_trees) {
+    TreeExplainer* explainer = new TreeExplainer();
+
+    int tree_count = xgb_trees.size();
+    std::vector<SimpleTree> xgb_trees_vec;
+    xgb_trees_vec.reserve(tree_count);
+
+    for (int i = 0; i < tree_count; i++) {
+        Rcpp::List cur_tree = xgb_trees[i];
+
+        Eigen::VectorXi cl = Rcpp::as<Eigen::VectorXi>( cur_tree["children_left"] );
+        Eigen::VectorXi cr = Rcpp::as<Eigen::VectorXi>( cur_tree["children_right"] );
+        Eigen::VectorXi feat = Rcpp::as<Eigen::VectorXi>( cur_tree["feature"] );
+        Eigen::VectorXd thr = Rcpp::as<Eigen::VectorXd>( cur_tree["threshold"] );
+        int md = Rcpp::as<int>( cur_tree["max_depth"] );
+        Eigen::VectorXd ns = Rcpp::as<Eigen::VectorXd>( cur_tree["n_node_samples"] );
+        Eigen::VectorXd val = Rcpp::as<Eigen::VectorXd>( cur_tree["value"] );
+        int nn = Rcpp::as<int>( cur_tree["node_count"] );
+
+        SimpleTree cur_tree_obj = {cl, cr, feat, thr, md, ns, val, nn};
+        xgb_trees_vec.push_back(cur_tree_obj);
+    }
+
+    explainer->initialize_xgboost(max_depth, base_score, xgb_trees_vec);
+
+    Rcpp::XPtr<TreeExplainer> ptr(explainer, true);
     return ptr;
 }
 

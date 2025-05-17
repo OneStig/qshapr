@@ -11,7 +11,7 @@ Eigen::VectorXd inv_binom_coef(int d) {
     for (int i = d / 2 + 1; i < d + 1; i++) {
         coef(i) = coef(d - i);
     }
-
+    
     return coef.cwiseInverse();
 }
 
@@ -21,9 +21,9 @@ Eigen::MatrixXcd complex_v_invc_degree(int d) {
         double theta = -2 * M_PI * k / d;
         omega_inv(k) = std::polar(1.0, theta); // e^{i * theta}
     }
-
+    
     Eigen::MatrixXcd v_omega_inv(d, d);
-
+    
     for (int i = 0; i < d; i++) {
         std::complex<double> w = omega_inv(i);
         std::complex<double> val(1.0, 0.0);
@@ -32,11 +32,11 @@ Eigen::MatrixXcd complex_v_invc_degree(int d) {
             val *= w;
         }
     }
-
+    
     Eigen::MatrixXcd v_inv_omega_theo = v_omega_inv / d;
     Eigen::VectorXd inv_binom = inv_binom_coef(d - 1);
     Eigen::MatrixXcd res = (v_inv_omega_theo * inv_binom) / d;
-
+    
     return res;
 }
 
@@ -92,23 +92,23 @@ double complex_dot_v2(const Eigen::VectorXcd& p, const Eigen::VectorXcd& v_invc,
 }
 
 void traversal_weight(
-    const Eigen::VectorXd& x,
-    int v,
-    Eigen::VectorXd& w,
-    const Eigen::VectorXi& children_left,
-    const Eigen::VectorXi& children_right,
-    const Eigen::VectorXi& feature,
-    const Eigen::VectorXd& threshold,
-    const Eigen::VectorXd& sample_weight,
-    const Eigen::VectorXi& leaf_ind,
-    Eigen::MatrixXd& w_res,
-    Eigen::MatrixXi& w_ind,
-    int depth,
-    Eigen::VectorXi& met_feature
+        const Eigen::VectorXd& x,
+        int v,
+        Eigen::VectorXd& w,
+        const Eigen::VectorXi& children_left,
+        const Eigen::VectorXi& children_right,
+        const Eigen::VectorXi& feature,
+        const Eigen::VectorXd& threshold,
+        const Eigen::VectorXd& sample_weight,
+        const Eigen::VectorXi& leaf_ind,
+        Eigen::MatrixXd& w_res,
+        Eigen::MatrixXi& w_ind,
+        int depth,
+        Eigen::VectorXi& met_feature
 ) {
     int v_l = children_left(v);
     int v_r = children_right(v);
-
+    
     if (v_l < 0) {
         // This is a leaf node
         // Find the right location in leaf_ind vector
