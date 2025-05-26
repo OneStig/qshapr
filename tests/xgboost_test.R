@@ -1,9 +1,35 @@
 library(xgboost)
 library(qshapr)
 
-X <- matrix(1:10, ncol=1)
-y <- rep(0, 10)
-model <- xgboost(data = X, label = y, nrounds = 1, verbose = 0)
-print(class(model))
+url <- "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv"
+housing <- read.csv(url)
+
+housing$AveRooms <- housing$total_rooms / housing$households
+housing$AveBedrms <- housing$total_bedrooms / housing$households
+housing$AveOccup <- housing$population / housing$households
+
+X <- data.frame(
+    MedInc = housing$median_income,
+    HouseAge = housing$housing_median_age,
+    AveRooms = housing$AveRooms,
+    AveBedrms = housing$AveBedrms,
+    Population = housing$population,
+    AveOccup = housing$AveOccup,
+    Latitude = housing$latitude,
+    Longitude = housing$longitude
+)
+
+y <- housing$median_house_value
+
+model <- xgboost(
+  data = as.matrix(X),
+  label = y,
+  nrounds = 50,
+  max_depth = 2,
+  verbose = 0,
+)
 
 explainer <- qshapr::create_tree_explainer(model)
+rsq = qshapr::qshap_rsq(explainer, X, y, nsample = 1024)
+
+print(rsq)

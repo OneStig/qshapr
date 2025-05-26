@@ -1,5 +1,30 @@
 #include "utils.h"
 
+TreeSummary list_to_tree_summary(const Rcpp::List& tree_summary_list) {
+    TreeSummary summary;
+    
+    Rcpp::IntegerVector children_left_r = tree_summary_list["children_left"];
+    Rcpp::IntegerVector children_right_r = tree_summary_list["children_right"];
+    Rcpp::IntegerVector feature_r = tree_summary_list["feature"];
+    Rcpp::IntegerVector feature_uniq_r = tree_summary_list["feature_uniq"];
+    Rcpp::NumericVector threshold_r = tree_summary_list["threshold"];
+    Rcpp::NumericVector sample_weight_r = tree_summary_list["sample_weight"];
+    Rcpp::NumericVector init_prediction_r = tree_summary_list["init_prediction"];
+    
+    summary.children_left = Rcpp::as<Eigen::VectorXi>(children_left_r);
+    summary.children_right = Rcpp::as<Eigen::VectorXi>(children_right_r);
+    summary.feature = Rcpp::as<Eigen::VectorXi>(feature_r);
+    summary.feature_uniq = Rcpp::as<Eigen::VectorXi>(feature_uniq_r);
+    summary.threshold = Rcpp::as<Eigen::VectorXd>(threshold_r);
+    summary.sample_weight = Rcpp::as<Eigen::VectorXd>(sample_weight_r);
+    summary.init_prediction = Rcpp::as<Eigen::VectorXd>(init_prediction_r);
+    
+    summary.max_depth = Rcpp::as<int>(tree_summary_list["max_depth"]);
+    summary.node_count = Rcpp::as<int>(tree_summary_list["node_count"]);
+    
+    return summary;
+}
+
 Eigen::VectorXd inv_binom_coef(int d) {
     Eigen::VectorXd coef(d + 1);
     coef(0) = 1;

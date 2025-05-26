@@ -11,61 +11,66 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// create_tree_explainer_cpp
-SEXP create_tree_explainer_cpp(const Rcpp::List& tree_model);
-RcppExport SEXP _qshapr_create_tree_explainer_cpp(SEXP tree_modelSEXP) {
+// T2
+Eigen::MatrixXd T2(const Eigen::MatrixXd& x, const Rcpp::List& tree_summary, const Eigen::MatrixXcd& store_v_invc, const Eigen::MatrixXcd& store_z, bool parallel);
+RcppExport SEXP _qshapr_T2(SEXP xSEXP, SEXP tree_summarySEXP, SEXP store_v_invcSEXP, SEXP store_zSEXP, SEXP parallelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type tree_model(tree_modelSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_tree_explainer_cpp(tree_model));
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type tree_summary(tree_summarySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXcd& >::type store_v_invc(store_v_invcSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXcd& >::type store_z(store_zSEXP);
+    Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
+    rcpp_result_gen = Rcpp::wrap(T2(x, tree_summary, store_v_invc, store_z, parallel));
     return rcpp_result_gen;
 END_RCPP
 }
-// create_xgboost_explainer
-SEXP create_xgboost_explainer(int max_depth, long double base_score, const Rcpp::List& xgb_trees);
-RcppExport SEXP _qshapr_create_xgboost_explainer(SEXP max_depthSEXP, SEXP base_scoreSEXP, SEXP xgb_treesSEXP) {
+// loss_treeshap
+Eigen::MatrixXd loss_treeshap(const Eigen::MatrixXd& x, const Eigen::VectorXd& y, const Rcpp::List& tree_summary, const Eigen::MatrixXcd& store_v_invc, const Eigen::MatrixXcd& store_z, const Eigen::MatrixXd& T0_x, double learning_rate);
+RcppExport SEXP _qshapr_loss_treeshap(SEXP xSEXP, SEXP ySEXP, SEXP tree_summarySEXP, SEXP store_v_invcSEXP, SEXP store_zSEXP, SEXP T0_xSEXP, SEXP learning_rateSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type max_depth(max_depthSEXP);
-    Rcpp::traits::input_parameter< long double >::type base_score(base_scoreSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type xgb_trees(xgb_treesSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_xgboost_explainer(max_depth, base_score, xgb_trees));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_tree_summary
-Rcpp::List get_tree_summary(SEXP explainer_ptr);
-RcppExport SEXP _qshapr_get_tree_summary(SEXP explainer_ptrSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type explainer_ptr(explainer_ptrSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_tree_summary(explainer_ptr));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rsq
-Eigen::VectorXd rsq(SEXP explainer_ptr, const Eigen::MatrixXd& x, const Eigen::VectorXd& y, const Eigen::MatrixXd& T0_x);
-RcppExport SEXP _qshapr_rsq(SEXP explainer_ptrSEXP, SEXP xSEXP, SEXP ySEXP, SEXP T0_xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type explainer_ptr(explainer_ptrSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type tree_summary(tree_summarySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXcd& >::type store_v_invc(store_v_invcSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXcd& >::type store_z(store_zSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type T0_x(T0_xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rsq(explainer_ptr, x, y, T0_x));
+    Rcpp::traits::input_parameter< double >::type learning_rate(learning_rateSEXP);
+    rcpp_result_gen = Rcpp::wrap(loss_treeshap(x, y, tree_summary, store_v_invc, store_z, T0_x, learning_rate));
+    return rcpp_result_gen;
+END_RCPP
+}
+// store_complex_v_invc
+Eigen::MatrixXcd store_complex_v_invc(int d);
+RcppExport SEXP _qshapr_store_complex_v_invc(SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(store_complex_v_invc(d));
+    return rcpp_result_gen;
+END_RCPP
+}
+// store_complex_root
+Eigen::MatrixXcd store_complex_root(int d);
+RcppExport SEXP _qshapr_store_complex_root(SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(store_complex_root(d));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_qshapr_create_tree_explainer_cpp", (DL_FUNC) &_qshapr_create_tree_explainer_cpp, 1},
-    {"_qshapr_create_xgboost_explainer", (DL_FUNC) &_qshapr_create_xgboost_explainer, 3},
-    {"_qshapr_get_tree_summary", (DL_FUNC) &_qshapr_get_tree_summary, 1},
-    {"_qshapr_rsq", (DL_FUNC) &_qshapr_rsq, 4},
+    {"_qshapr_T2", (DL_FUNC) &_qshapr_T2, 5},
+    {"_qshapr_loss_treeshap", (DL_FUNC) &_qshapr_loss_treeshap, 7},
+    {"_qshapr_store_complex_v_invc", (DL_FUNC) &_qshapr_store_complex_v_invc, 1},
+    {"_qshapr_store_complex_root", (DL_FUNC) &_qshapr_store_complex_root, 1},
     {NULL, NULL, 0}
 };
 

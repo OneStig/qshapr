@@ -2,10 +2,22 @@
 #define QSHAP
 
 #include <RcppEigen.h>
+#include <Rcpp.h>
 #include <complex>
 #include <vector>
 
 #include "utils.h"
+
+// [[Rcpp::depends(RcppEigen)]]
+
+// [[Rcpp::export]]
+Eigen::MatrixXd T2(
+    const Eigen::MatrixXd& x, 
+    const Rcpp::List& tree_summary,
+    const Eigen::MatrixXcd& store_v_invc, 
+    const Eigen::MatrixXcd& store_z,
+    bool parallel = true
+);
 
 void T2_sample(
     int i, 
@@ -18,18 +30,11 @@ void T2_sample(
     const Eigen::VectorXi& feature_uniq
 );
 
-Eigen::MatrixXd T2(
-    const Eigen::MatrixXd& x, 
-    const TreeSummary& summary_tree,
-    const Eigen::MatrixXcd& store_v_invc, 
-    const Eigen::MatrixXcd& store_z,
-    bool parallel = true
-);
-
+// [[Rcpp::export]]
 Eigen::MatrixXd loss_treeshap(
         const Eigen::MatrixXd& x,
         const Eigen::VectorXd& y,
-        const TreeSummary& summary_tree,
+        const Rcpp::List& tree_summary,
         const Eigen::MatrixXcd& store_v_invc,
         const Eigen::MatrixXcd& store_z,
         const Eigen::MatrixXd& T0_x,
