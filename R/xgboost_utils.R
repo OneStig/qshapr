@@ -4,60 +4,60 @@ NULL
 # Loss implementation for xgboost model
 #' @keywords internal
 qshap_loss_xgboost <- function(explainer, x, y, y_mean_ori = NULL) {
-  # Extract necessary components from explainer
-  # max_depth <- explainer$max_depth
   model <- explainer$model
   store_v_invc <- explainer$store_v_invc
   store_z <- explainer$store_z
   base_score <- explainer$base_score
-  xgb_trees <- explainer$trees
+  xgb_trees <- explainer$trees # This is a list of simple_tree objects
   
-  # Get number of trees
   num_tree <- length(xgb_trees)
-  
-  # Initialize loss matrix
   loss <- matrix(0, nrow = nrow(x), ncol = ncol(x))
   
-  # Convert x to matrix if it's not already
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
-  
 
-  # Does this work? Not looking at individual trees, but the whole model
-  shap_cur <- predict(model, x, predcontrib = TRUE)
-  shap_cur <- shap_cur[, -ncol(shap_cur)] # Remove bias col
+  # iterations are 1-based in xgboost predict
+  for (i in seq_len(num_tree)) { # i is the 1-based index of the current tree (round i)
+    
+    local_res <- NULL 
+    T0_x_tree <- NULL  # SHAP values for the current tree (round i)
 
-  for (i in seq_len(num_tree)) {
-    # Calculate residuals for current tree
-    if (i == 1) {
-      res <- y - base_score
-    } else {
+    if (i == 1) { # For the first tree (round 1)
+      local_res <- y - base_score
+      
+      # SHAP values for the first tree (round 1 only)
+      # iterationrange = c(1, 2) means use tree from round 1 up to (but not including) round 2. So, only round 1.
+      shap_round_1_cumulative <- predict(model, x, predcontrib = TRUE, iterationrange = c(1, 2))
+      T0_x_tree <- shap_round_1_cumulative[, -ncol(shap_round_1_cumulative), drop = FALSE]
+    } else { # For subsequent trees (round i, where i > 1)
+      # Calculate residual: y - prediction_from_rounds_1_to_(i-1)
+      # iterationrange = c(1, i) means use trees from round 1 up to (but not including) round i. So, rounds 1 to i-1.
       pred_partial <- predict(model, x, iterationrange = c(1, i))
-      res <- y - pred_partial
+      local_res <- y - pred_partial
+      
+      # SHAP values for current tree (round i)
+      # SHAP from rounds 1 to i: iterationrange = c(1, i + 1)
+      shap_total_up_to_round_i <- predict(model, x, predcontrib = TRUE, iterationrange = c(1, i + 1))
+      # SHAP from rounds 1 to i-1: iterationrange = c(1, i)
+      shap_total_up_to_round_i_minus_1 <- predict(model, x, predcontrib = TRUE, iterationrange = c(1, i))
+      
+      T0_x_tree <- shap_total_up_to_round_i[, -ncol(shap_total_up_to_round_i), drop = FALSE] - 
+                   shap_total_up_to_round_i_minus_1[, -ncol(shap_total_up_to_round_i_minus_1), drop = FALSE]
     }
     
-    # Get summary tree for current tree
+    # xgb_trees is a 1-indexed list in R. xgb_trees[[i]] is the tree for round i.
     summary_tree <- summarize_tree(xgb_trees[[i]])
-
-
-    # if (i == 1) {
-    #   T0_x <- shap_cur
-    # }
-    # else {
-    #   T0_x <- shap_cur - shap_prev
-    # }
-
-    # shap_prev <- shap_cur
-
-    # print(str(T0_x))
-
-    tree_loss <- loss_treeshap(x, res, summary_tree, store_v_invc, store_z, shap_cur, 1.0)
+    
+    # Call C++ loss_treeshap with per-tree SHAP values (T0_x_tree) and correct residuals (local_res)
+    # The learning rate for individual XGBoost trees in this SHAP context is effectively 1.0,
+    # as tree outputs are already scaled.
+    current_tree_loss <- loss_treeshap(x, local_res, summary_tree, store_v_invc, store_z, T0_x_tree, 1.0)
     
     if (i == 1) {
-      loss <- tree_loss
+      loss <- current_tree_loss
     } else {
-      loss <- loss + tree_loss
+      loss <- loss + current_tree_loss
     }
   }
   

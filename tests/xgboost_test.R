@@ -10,13 +10,13 @@ housing$AveOccup <- housing$population / housing$households
 
 X <- data.frame(
     MedInc = housing$median_income,
+    AveOccup = housing$AveOccup,
+    Longitude = housing$longitude,
+    Latitude = housing$latitude,
     HouseAge = housing$housing_median_age,
     AveRooms = housing$AveRooms,
     AveBedrms = housing$AveBedrms,
-    Population = housing$population,
-    AveOccup = housing$AveOccup,
-    Latitude = housing$latitude,
-    Longitude = housing$longitude
+    Population = housing$population
 )
 
 y <- housing$median_house_value
